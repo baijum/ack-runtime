@@ -65,6 +65,12 @@ func (r *adoptionReconciler) BindControllerManager(mgr ctrlrt.Manager) error {
 	).Complete(r)
 }
 
+// CreateSecret creates a secret resource
+func (r *adoptionReconciler) CreateSecret(ctx context.Context, secret *corev1.Secret) error {
+	//r.kc.Create(ctx, secret)
+	return nil
+}
+
 // Reconcile implements `controller-runtime.Reconciler` and handles reconciling
 // a CR CRUD request
 func (r *adoptionReconciler) Reconcile(ctx context.Context, req ctrlrt.Request) (ctrlrt.Result, error) {

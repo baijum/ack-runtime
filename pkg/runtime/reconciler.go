@@ -1064,6 +1064,17 @@ func (r *resourceReconciler) getEndpointURL(
 	return r.cfg.EndpointURL
 }
 
+// CreateSecret creates a secret resource
+func (r *resourceReconciler) CreateSecret(ctx context.Context, secret *corev1.Secret) error {
+	rlog := ackrtlog.FromContext(ctx)
+	rlog.Enter("r.CreateSecret")
+	if err := r.kc.Create(ctx, secret); err != nil {
+		rlog.Enter("Error creating r.CreateSecret")
+		return err
+	}
+	return nil
+}
+
 // NewReconciler returns a new reconciler object
 func NewReconciler(
 	sc acktypes.ServiceController,

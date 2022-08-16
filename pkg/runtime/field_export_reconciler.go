@@ -286,6 +286,12 @@ func (r *fieldExportReconciler) getSourcePathFromResource(
 	return nil, nil
 }
 
+// CreateSecret creates a secret resource
+func (r *fieldExportReconciler) CreateSecret(ctx context.Context, secret *corev1.Secret) error {
+	//r.kc.Create(ctx, secret)
+	return nil
+}
+
 // writeToConfigMap will patch an existing config map to add an exported field
 // value. By default the key will be "<namespace>.<name>" using values from the
 // exporter that created it.
@@ -294,8 +300,11 @@ func (r *fieldExportReconciler) writeToConfigMap(
 	sourceValue string,
 	desired *ackv1alpha1.FieldExport,
 ) error {
-	// Construct the data key
-	key := fmt.Sprintf("%s.%s", desired.Namespace, desired.Name)
+	key := *desired.Spec.To.Key
+	if strings.TrimSpace(key) == "" {
+		// Construct the data key
+		key = fmt.Sprintf("%s.%s", desired.Namespace, desired.Name)
+	}
 
 	// Get the initial configmap
 	nsn := types.NamespacedName{

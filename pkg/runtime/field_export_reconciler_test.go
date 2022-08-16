@@ -363,6 +363,7 @@ func TestSync_HappyCaseSecret(t *testing.T) {
 	descriptor, res, _ := mockDescriptorAndAWSResource()
 	manager := mockManager()
 	fieldExport := fieldExportSecret(FieldExportNamespace, FieldExportName)
+	fieldExport.Spec.To.Key = strPtr("testkey")
 	sourceResource, _, _ := mockSourceResource()
 	ctx := context.TODO()
 	statusWriter := &ctrlrtclientmock.StatusWriter{}
@@ -382,7 +383,7 @@ func TestSync_HappyCaseSecret(t *testing.T) {
 	require.NotNil(latest.Status)
 	require.Len(latest.Status.Conditions, 0)
 	assertPatchedConfigMap(false, t, ctx, kc)
-	assertPatchedSecret(true, t, ctx, kc)
+	assertPatchedSecretWitkKey(true, t, ctx, kc)
 }
 
 func TestFilterAllExports_HappyCase(t *testing.T) {
@@ -478,6 +479,26 @@ func assertPatchedSecret(expected bool, t *testing.T, ctx context.Context, kc *c
 		if cm.Data == nil {
 			return false
 		}
+		key := fmt.Sprintf("%s.%s", FieldExportNamespace, FieldExportName)
+		val, ok := cm.Data[key]
+		if !ok {
+			return false
+		}
+		return bytes.Equal(val, []byte("test-book-name"))
+	})
+	if expected {
+		kc.AssertCalled(t, "Patch", ctx, dataMatcher, mock.Anything)
+	} else {
+		kc.AssertNotCalled(t, "Patch", ctx, dataMatcher, mock.Anything)
+	}
+}
+
+func assertPatchedSecretWitkKey(expected bool, t *testing.T, ctx context.Context, kc *ctrlrtclientmock.Client) {
+	dataMatcher := mock.MatchedBy(func(cm *corev1.Secret) bool {
+		if cm.Data == nil {
+			return false
+		}
+		//key := "testkey"
 		key := fmt.Sprintf("%s.%s", FieldExportNamespace, FieldExportName)
 		val, ok := cm.Data[key]
 		if !ok {

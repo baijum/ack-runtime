@@ -17,6 +17,7 @@ import (
 	"context"
 
 	"github.com/aws-controllers-k8s/runtime/apis/core/v1alpha1"
+	corev1 "k8s.io/api/core/v1"
 	ctrlreconcile "sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
@@ -29,6 +30,7 @@ import (
 // those controllers.
 type Reconciler interface {
 	ctrlreconcile.Reconciler
+	CreateSecret(context.Context, *corev1.Secret) error
 	// SecretValueFromReference fetches the value of a Secret given a
 	// SecretKeyReference
 	SecretValueFromReference(context.Context, *v1alpha1.SecretKeyReference) (string, error)
